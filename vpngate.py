@@ -45,8 +45,8 @@ CONCURRENCY = max(1, int(os.environ.get("CHECK_CONCURRENCY", "32")))
 CHECK_TIMEOUT = float(os.environ.get("CHECK_TIMEOUT", "90"))
 MAX_CHECK_NODES = int(os.environ.get("MAX_CHECK_NODES", "0"))
 HTTP_TIMEOUT = int(os.environ.get("HTTP_TIMEOUT", "60"))
-MAX_LATENCY = int(os.environ.get("MAX_LATENCY", "0"))       # 只保留检测耗时 < 该值(ms)的节点, 0=不限制
-MAX_PER_COUNTRY = int(os.environ.get("MAX_PER_COUNTRY", "15"))  # 每个国家最多保留节点数, 0=不限制
+MAX_LATENCY = int(os.environ.get("MAX_LATENCY", "500"))          # 只保留检测耗时 < 该值(ms)的节点, 0=不限制
+MAX_PER_COUNTRY = int(os.environ.get("MAX_PER_COUNTRY", "0")) # 每个国家最多保留节点数, 0=不限制
 PUBLIC_DIR = os.environ.get("PUBLIC_DIR", os.path.join(REPO_DIR, "public"))
 TEMPLATE_HTML = os.path.join(REPO_DIR, "web", "index.html")
 
@@ -306,7 +306,7 @@ EDGE_HOSTS = [
         "EDGE_HOSTS",
         "saas.sin.fan:443,cdn.204910.best:443,www.mfyx.cn:443,p.etime.vip:443,cdn.ctn32.us.kg:443,cf.877774.xyz:443,spring.io:443,"
         "cf.nyanya.moe:443,www.sloomb.com:443,op.chinwa.eu.cc:443,www.leics.police.uk:443,securecircle.com:443,www.shopify.com:443,"
-        "www.carousell.sg:443,www.dbs.com.sg:443,openai.com:443,linear.app:443,www.bilibili.com:443,uspto.gov:443,www.vmware.com:443",
+        "www.carousell.sg:443,www.dbs.com.sg:443,openai.com:443,linear.app:443,cloudflare.com:443,uspto.gov:443,www.vmware.com:443",
     ).split(",")
     if h.strip()
 ]
