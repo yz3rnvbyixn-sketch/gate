@@ -45,6 +45,8 @@ CONCURRENCY = max(1, int(os.environ.get("CHECK_CONCURRENCY", "32")))
 CHECK_TIMEOUT = float(os.environ.get("CHECK_TIMEOUT", "90"))
 MAX_CHECK_NODES = int(os.environ.get("MAX_CHECK_NODES", "0"))
 HTTP_TIMEOUT = int(os.environ.get("HTTP_TIMEOUT", "60"))
+MAX_LATENCY = int(os.environ.get("MAX_LATENCY", "5000"))       # 只保留检测耗时 < 该值(ms)的节点, 0=不限制
+MAX_PER_COUNTRY = int(os.environ.get("MAX_PER_COUNTRY", "8"))  # 每个国家最多保留节点数, 0=不限制
 PUBLIC_DIR = os.environ.get("PUBLIC_DIR", os.path.join(REPO_DIR, "public"))
 TEMPLATE_HTML = os.path.join(REPO_DIR, "web", "index.html")
 
@@ -275,6 +277,8 @@ def check_all(nodes, session):
 # ---------------------------------------------------------------------------
 def build_outputs(results, raw_count, sstp_count, source):
     available = [r for r in results if r.get("success")]
+    if MAX_LATENCY > 0:
+        available = [r for r in available if isinstance(r.get("latency_ms"), (int, float)) and 0 < r["latency_ms"] < MAX_LATENCY]
     countries = {}
     for n in available:
         c = n["country"] or "未知"
@@ -283,10 +287,13 @@ def build_outputs(results, raw_count, sstp_count, source):
     stats = {"raw_nodes": raw_count, "sstp_nodes": sstp_count, "checked": len(results), "success": len(available), "failed": len(results) - len(available), "countries": len(countries), "residential_est": sum(1 for n in available if n["residential"] == "residential"), "datacenter_est": sum(1 for n in available if n["residential"] == "datacenter")}
     by_country = {}
     for name, grp in countries.items():
+        # 住宅节点优先, 再按延迟升序
+        grp["nodes"].sort(key=lambda n: (0 if n.get("residential") == "residential" else 1, n.get("latency_ms") is None, n.get("latency_ms") or 0, n["host"]))
+        if MAX_PER_COUNTRY > 0:
+            grp["nodes"] = grp["nodes"][:MAX_PER_COUNTRY]
         grp["count"] = len(grp["nodes"])
         grp["residential"] = sum(1 for n in grp["nodes"] if n["residential"] == "residential")
         grp["datacenter"] = sum(1 for n in grp["nodes"] if n["residential"] == "datacenter")
-        grp["nodes"].sort(key=lambda n: (n.get("latency_ms") is None, n.get("latency_ms") or 0, n["host"]))
         by_country[name] = grp
 
     data = {"generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"), "source": source, "worker": WORKER_CHECK_URL, "stats": stats, "countries": by_country, "available": available}
