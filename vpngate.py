@@ -45,8 +45,8 @@ CONCURRENCY = max(1, int(os.environ.get("CHECK_CONCURRENCY", "32")))
 CHECK_TIMEOUT = float(os.environ.get("CHECK_TIMEOUT", "90"))
 MAX_CHECK_NODES = int(os.environ.get("MAX_CHECK_NODES", "0"))
 HTTP_TIMEOUT = int(os.environ.get("HTTP_TIMEOUT", "60"))
-MAX_LATENCY = int(os.environ.get("MAX_LATENCY", "5000"))       # 只保留检测耗时 < 该值(ms)的节点, 0=不限制
-MAX_PER_COUNTRY = int(os.environ.get("MAX_PER_COUNTRY", "8"))  # 每个国家最多保留节点数, 0=不限制
+MAX_LATENCY = int(os.environ.get("MAX_LATENCY", "0"))       # 只保留检测耗时 < 该值(ms)的节点, 0=不限制
+MAX_PER_COUNTRY = int(os.environ.get("MAX_PER_COUNTRY", "15"))  # 每个国家最多保留节点数, 0=不限制
 PUBLIC_DIR = os.environ.get("PUBLIC_DIR", os.path.join(REPO_DIR, "public"))
 TEMPLATE_HTML = os.path.join(REPO_DIR, "web", "index.html")
 
